@@ -37,7 +37,7 @@
           <h3>Your Chats</h3>
           <ul>
             <li v-for="chat in chats" :key="chat.id" @click="openChat(chat)" :class="{ active: currentChat?.id === chat.id }">
-              {{ chat.name }}
+              {{ getChatDisplayName(chat.name) }}
             </li>
           </ul>
         </div>
@@ -160,8 +160,12 @@ const getUsernameById = async (userId) => {
   }
 };
 
+const getChatDisplayName = (chatName) => {
+  const names = chatName.split(' ');
+  return names.filter(name => name !== userProfile.value.username).join(' ');
+};
+
 const openChat = (chat) => {
-  console.log("Открываем чат:", chat);
   currentChat.value = chat;
   fetchMessages(chat.id);
 };

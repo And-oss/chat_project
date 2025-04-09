@@ -1,0 +1,24 @@
+/* src/assets/styles.css */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #202225;
+  color: white;
+}
+
+h1, h2, h3 {
+  color: #ffffff;
+}
+
+button {
+  background-color: #5865F2;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+button:hover {
+  background-color: #4752C4;
+}

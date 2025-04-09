@@ -4,54 +4,102 @@
       <h2>Chat</h2>
       <button @click="logout" class="logout-button">Logout</button>
     </div>
+    
     <div class="chat-container">
-      <!-- Левая панель: профиль, поиск пользователей и список чатов -->
+      <!-- Левая панель с вкладками -->
       <div class="left-panel">
-        <!-- Вкладка "Profile" -->
-        <div class="profile-container">
-          <h3>Profile</h3>
+        <div class="tabs">
+          <button 
+            @click="activeTab = 'chats'" 
+            :class="{ 'active-tab': activeTab === 'chats' }"
+          >
+            Chats
+          </button>
+          <button 
+            @click="activeTab = 'profile'" 
+            :class="{ 'active-tab': activeTab === 'profile' }"
+          >
+            Profile
+          </button>
+        </div>
+
+        <!-- Содержимое вкладки профиля -->
+        <div v-if="activeTab === 'profile'" class="profile-container">
+          <h3>My Profile</h3>
           <div class="profile-info">
             <p><strong>Username:</strong> {{ userProfile.username }}</p>
             <p><strong>Email:</strong> {{ userProfile.email }}</p>
           </div>
         </div>
 
-        <!-- Поиск пользователей -->
-        <div class="search-users-container">
-          <input
-            v-model="searchQuery"
-            type="text"
-            placeholder="Search users..."
-            @input="searchUsers"
-            class="search-users-input"
-          />
-          <ul v-if="searchResults.length > 0" class="search-results">
-            <li v-for="user in searchResults" :key="user.id" @click="createPersonalChat(user)">
-              {{ user.username }}
-            </li>
-          </ul>
-        </div>
+        <!-- Содержимое вкладки чатов -->
+        <div v-else class="chats-tab">
+          <div class="search-users-container">
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Search users..."
+              @input="searchUsers"
+              class="search-users-input"
+            />
+            <ul v-if="searchResults.length > 0" class="search-results">
+              <li 
+                v-for="user in searchResults" 
+                :key="user.id" 
+                @click="createPersonalChat(user)"
+              >
+                {{ user.username }}
+              </li>
+            </ul>
+          </div>
 
-        <!-- Список чатов -->
-        <div class="chat-list">
-          <h3>Your Chats</h3>
-          <ul>
-            <li v-for="chat in chats" :key="chat.id" @click="openChat(chat)" :class="{ active: currentChat?.id === chat.id }">
-              {{ getChatDisplayName(chat.name) }}
-            </li>
-          </ul>
+          <div class="chat-list">
+            <h3>Your Chats</h3>
+            <ul>
+              <li 
+                v-for="chat in chats" 
+                :key="chat.id" 
+                @click="openChat(chat)" 
+                :class="{ active: currentChat?.id === chat.id }"
+              >
+                {{ getChatDisplayName(chat.name) }}
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
 
-      <!-- Окно чата -->
+      <!-- Окно чата с профилем пользователя -->
       <div v-if="currentChat" class="chat-window">
-        <div class="messages">
-          <div v-for="message in messages" :key="message.id" class="message">
-            <span class="username">{{ message.username }}:</span>
-            <span class="text">{{ message.content }}</span>
-            <span class="timestamp">{{ new Date(message.timestamp).toLocaleTimeString() }}</span>
+        <div class="chat-header" @click="toggleUserProfile">
+          <div class="chat-partner">
+            {{ getChatDisplayName(currentChat.name) }}
           </div>
         </div>
+
+        <!-- Сообщения -->
+        <div class="messages-container">
+          <div class="messages">
+            <div v-for="message in messages" :key="message.id" class="message" 
+                :class="{ 'my-message': message.sender_id === store.userId, 'their-message': message.sender_id !== store.userId }">
+              <span class="username">{{ message.username }}:</span>
+              <span class="text">{{ message.content }}</span>
+              <span class="timestamp">{{ new Date(message.timestamp).toLocaleTimeString() }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Боковая панель профиля пользователя -->
+        <div v-if="showUserProfile" class="user-profile-sidebar">
+          <div class="profile-info">
+            <h3>User Profile</h3>
+            <p><strong>Username:</strong> {{ selectedUserProfile?.username }}</p>
+            <p><strong>Email:</strong> {{ selectedUserProfile?.email }}</p>
+          </div>
+          <button @click="showUserProfile = false" class="close-button">×</button>
+        </div>
+
+        <!-- Поле ввода сообщения -->
         <div class="message-input-container">
           <input
             v-model="newMessage"
@@ -64,7 +112,6 @@
         </div>
       </div>
 
-      <!-- Сообщение, если чат не выбран -->
       <div v-else class="no-chat">
         <p>Select a chat to start messaging.</p>
       </div>
@@ -73,7 +120,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useChatStore } from '@/store';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
@@ -82,16 +129,26 @@ import { io } from 'socket.io-client';
 const store = useChatStore();
 const router = useRouter();
 
+// Состояния интерфейса
+const activeTab = ref('chats');
+const showUserProfile = ref(false);
+const selectedUserProfile = ref(null);
+
+// Состояния данных
 const chats = ref([]);
 const currentChat = ref(null);
 const messages = ref([]);
 const newMessage = ref('');
 const searchQuery = ref('');
 const searchResults = ref([]);
-const userProfile = ref({ username: '', email: '' }); // Данные профиля
+const userProfile = ref({ 
+  username: '', 
+  email: '' 
+});
+
 const socket = io('http://127.0.0.1:5000');
 
-// Загрузка данных профиля
+// Методы
 const fetchUserProfile = async () => {
   try {
     const response = await axios.get(`http://127.0.0.1:5000/get_user_profile/${store.userId}`);
@@ -111,13 +168,15 @@ const fetchChats = async () => {
 };
 
 const searchUsers = async () => {
-  if (searchQuery.value.trim() === '') {
+  if (!searchQuery.value.trim()) {
     searchResults.value = [];
     return;
   }
 
   try {
-    const response = await axios.get(`http://127.0.0.1:5000/search_users?username=${searchQuery.value}`);
+    const response = await axios.get(
+      `http://127.0.0.1:5000/search_users?username=${searchQuery.value}`
+    );
     searchResults.value = response.data;
   } catch (error) {
     console.error("Error searching users", error);
@@ -131,13 +190,8 @@ const createPersonalChat = async (user) => {
       participant_id: user.id,
     });
 
-    console.log("Create chat response:", response.data);
-
-    if (response.data.chat && response.data.chat.id) {
-      // Option 1: Open the chat directly from the response data
-      openChat(response.data.chat);
-      
-      // Option 2: Also refresh the chat list to ensure it's up to date
+    if (response.data.chat?.id) {
+      await openChat(response.data.chat);
       await fetchChats();
     }
   } catch (error) {
@@ -145,58 +199,75 @@ const createPersonalChat = async (user) => {
   }
 };
 
-const getUsernameById = async (userId) => {
-  if (!userId) {
-    console.error("User ID is undefined!");
-    return "Unknown";
-  }
+const getChatParticipant = async (chat) => {
+  if (chat.is_group) return null;
+  const participantId = chat.participants?.find(id => id !== store.userId);
+  if (!participantId) return null;
 
   try {
-    const response = await axios.get(`http://127.0.0.1:5000/search_user_by_id/${userId}`);
-    return response.data.username;
+    const response = await axios.get(
+      `http://127.0.0.1:5000/get_user_profile/${participantId}`
+    );
+    return response.data;
   } catch (error) {
-    console.error(`Error fetching username for user ${userId}`, error);
-    return "Unknown";
+    console.error("Error fetching participant profile", error);
+    return null;
   }
 };
 
-const getChatDisplayName = (chatName) => {
-  const names = chatName.split(' ');
-  return names.filter(name => name !== userProfile.value.username).join(' ');
-};
-
-const openChat = (chat) => {
+const openChat = async (chat) => {
   currentChat.value = chat;
+  selectedUserProfile.value = await getChatParticipant(chat);
   fetchMessages(chat.id);
 };
 
 const fetchMessages = async (chatId) => {
   try {
     const response = await axios.get(`http://127.0.0.1:5000/get_messages/${chatId}`);
-    let fetchedMessages = response.data;
-
-    for (let message of fetchedMessages) {
-      message.username = await getUsernameById(message.sender_id);
-    }
-
-    messages.value = fetchedMessages;
+    const messagesWithUsernames = await Promise.all(
+      response.data.map(async message => ({
+        ...message,
+        username: await getUsernameById(message.sender_id)
+      }))
+    );
+    messages.value = messagesWithUsernames;
     socket.emit('join_chat', { chat_id: chatId });
   } catch (error) {
     console.error("Error fetching messages", error);
   }
 };
 
-const sendMessage = () => {
-  if (newMessage.value.trim() === '') return;
+const getUsernameById = async (userId) => {
+  try {
+    const response = await axios.get(
+      `http://127.0.0.1:5000/search_user_by_id/${userId}`
+    );
+    return response.data.username;
+  } catch (error) {
+    console.error("Error fetching username", error);
+    return "Unknown";
+  }
+};
 
-  const messageData = {
+const getChatDisplayName = computed(() => (chatName) => {
+  return chatName.split(' ')
+    .filter(name => name !== userProfile.value.username)
+    .join(' ');
+});
+
+const sendMessage = () => {
+  if (!newMessage.value.trim()) return;
+
+  socket.emit('send_message', {
     chat_id: currentChat.value.id,
     user_id: store.userId,
-    text: newMessage.value,
-  };
-
-  socket.emit('send_message', messageData);
+    text: newMessage.value
+  });
   newMessage.value = '';
+};
+
+const toggleUserProfile = () => {
+  showUserProfile.value = !showUserProfile.value;
 };
 
 const logout = () => {
@@ -204,24 +275,24 @@ const logout = () => {
   router.push('/');
 };
 
-socket.on('receive_message', async (data) => {
-  if (currentChat.value && currentChat.value.id === data.chat_id) {
-    console.log("Получено сообщение:", data);
-    data.username = await getUsernameById(data.sender_id);
-    console.log(`Имя пользователя: ${data.username}`);
-    messages.value.push({
-      ...data,
-      content: data.text,
-    });
-  }
-});
-
+// Хуки жизненного цикла
 onMounted(() => {
   if (!store.isLoggedIn) {
     router.push('/');
   } else {
-    fetchUserProfile(); // Загружаем данные профиля
+    fetchUserProfile();
     fetchChats();
+  }
+});
+
+// Socket handlers
+socket.on('receive_message', async (data) => {
+  if (currentChat.value?.id === data.chat_id) {
+    messages.value.push({
+      ...data,
+      content: data.text,
+      username: await getUsernameById(data.sender_id)
+    });
   }
 });
 </script>
@@ -366,27 +437,48 @@ onMounted(() => {
 
 /* Окно чата */
 .chat-window {
+  position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
-  background-color: #2d2d2d; /* Темный фон */
-  border-radius: 0 12px 12px 0; /* Скругленные углы справа */
+  height: calc(100vh - 80px); /* Учитываем высоту шапки */
 }
 
 .messages {
-  flex: 1;
-  padding: 20px;
-  overflow-y: auto;
-  scroll-behavior: smooth; /* Плавная прокрутка */
+  min-height: min-content;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 .message {
   margin-bottom: 15px;
-  padding: 10px;
-  border-radius: 8px; /* Скругленные углы */
-  background-color: #3d3d3d; /* Темный фон для сообщений */
-  max-width: 70%; /* Ограничиваем ширину сообщений */
-  animation: fadeIn 0.3s ease; /* Анимация появления */
+  padding: 12px 16px;
+  border-radius: 15px;
+  max-width: 70%;
+  position: relative;
+  animation: fadeIn 0.3s ease;
+}
+
+.my-message {
+  background-color: #007aff; /* Синий цвет для своих сообщений */
+  color: white;
+  margin-left: auto; /* Выравнивание справа */
+  border-bottom-right-radius: 4px; /* Скругление угла */
+}
+
+.their-message {
+  background-color: #3d3d3d; /* Темный цвет для чужих сообщений */
+  color: white;
+  margin-right: auto; /* Выравнивание слева */
+  border-bottom-left-radius: 4px; /* Скругление угла */
+}
+
+/* Корректируем цвет текста для своих сообщений */
+.my-message .username,
+.my-message .text,
+.my-message .timestamp {
+  color: white !important;
 }
 
 @keyframes fadeIn {
@@ -400,10 +492,21 @@ onMounted(() => {
   }
 }
 
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
 .username {
-  font-weight: 600; /* Полужирный шрифт */
-  color: #007aff; /* Синий цвет для имени */
-  margin-right: 5px;
+  display: block;
+  font-size: 0.9em;
+  margin-bottom: 4px;
 }
 
 .text {
@@ -411,19 +514,27 @@ onMounted(() => {
 }
 
 .timestamp {
-  font-size: 0.8em;
-  color: #8e8e93; /* Серый цвет для времени */
-  margin-left: 10px;
+  display: block;
+  font-size: 0.75em;
+  margin-top: 6px;
+  opacity: 0.8;
+}
+
+.messages-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  scroll-behavior: smooth; /* Плавная прокрутка */
 }
 
 /* Поле ввода сообщений */
 .message-input-container {
-  display: flex;
-  padding: 16px;
-  background-color: #2d2d2d; /* Темный фон */
-  border-top: 1px solid #444; /* Темная граница */
-  position: sticky; /* Фиксируем внизу */
+  position: sticky;
   bottom: 0;
+  background: #2d2d2d;
+  padding: 16px;
+  border-top: 1px solid #444;
+  z-index: 10;
 }
 
 .message-input {
@@ -486,7 +597,12 @@ onMounted(() => {
 }
 
 .profile-info {
-  color: #ffffff; /* Белый текст */
+  color: #ffffff;
+}
+
+.profile-info h3 {
+  margin-top: 0;
+  color: #007aff;
 }
 
 .profile-info p {
@@ -495,5 +611,63 @@ onMounted(() => {
 
 .profile-info strong {
   color: #007aff; /* Синий цвет для выделения */
+}
+
+.tabs button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: #3d3d3d; /* Темный фон */
+  color: #ffffff;       /* Белый текст */
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: background-color 0.2s ease, border-bottom 0.2s ease;
+}
+
+.tabs button:hover {
+  background: #4d4d4d; /* Немного темнее при наведении */
+}
+
+.tabs button.active-tab {
+  background: #2d2d2d;         /* Чуть темнее для активной */
+  border-bottom: 2px solid #007aff; /* Синяя линия внизу */
+  font-weight: 600;
+}
+
+.user-profile-sidebar {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 280px;
+  height: 100%;
+  background-color: #3d3d3d; /* Темный фон как у чата */
+  border-left: 1px solid #444; /* Граница как между панелями */
+  padding: 20px;
+  z-index: 100;
+  box-shadow: -4px 0 8px rgba(0, 0, 0, 0.1);
+  animation: slideIn 0.3s ease-out;
+}
+
+.close-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: #8e8e93;
+  font-size: 24px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.close-button:hover {
+  color: #007aff;
+}
+
+
+.chat-header {
+  cursor: pointer;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
 }
 </style>

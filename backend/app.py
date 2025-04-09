@@ -178,9 +178,6 @@ def create_personal_chat():
     
     user1_id = data.get('user_id')
     user2_id = data.get('participant_id')
-    
-    print("user1_id:", user1_id)  # Debug print
-    print("user2_id:", user2_id)  # Debug print
 
     if not user1_id or not user2_id:
         return jsonify({"error": "Both user_id and participant_id are required"}), 400
@@ -213,7 +210,7 @@ def create_personal_chat():
         return jsonify(response_data), 200
 
     # Create new personal chat
-    chat_name = f"{user2.username}"
+    chat_name = f"{user1.username} {user2.username}"
     new_chat = Chat(name=chat_name, is_group=False)
     new_chat.participants.extend([user1, user2])
     

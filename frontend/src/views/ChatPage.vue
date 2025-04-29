@@ -23,7 +23,7 @@
           </button>
         </div>
 
-        <!-- Содержимое вкладки профиля -->
+        <!-- Профиль -->
         <div v-if="activeTab === 'profile'" class="profile-container">
           <h3>My Profile</h3>
           <div class="profile-info">
@@ -32,7 +32,7 @@
           </div>
         </div>
 
-        <!-- Содержимое вкладки чатов -->
+        <!-- Чаты -->
         <div v-else class="chats-tab">
           <div class="search-users-container">
             <input
@@ -69,11 +69,35 @@
         </div>
       </div>
 
-      <!-- Окно чата с профилем пользователя -->
+      <!-- Окно чата -->
       <div v-if="currentChat" class="chat-window">
         <div class="chat-header" @click="toggleUserProfile">
           <div class="chat-partner">
             {{ getChatDisplayName(currentChat.name) }}
+          </div>
+        </div>
+
+        <!-- Управление звонками -->
+        <div class="call-controls">
+          <button 
+            v-if="!inCall && !incomingCall" 
+            @click="startCall" 
+            class="call-button"
+          >
+            📞 Call
+          </button>
+
+          <!-- Входящий звонок -->
+          <div v-if="incomingCall" class="incoming-call-popup">
+            <p>{{ callFrom?.username }} is calling you...</p>
+            <button @click="acceptCall" class="accept-button">Accept</button>
+            <button @click="declineCall" class="decline-button">Decline</button>
+          </div>
+
+          <!-- Активный звонок -->
+          <div v-if="inCall" class="active-call-box">
+            <p>In Call with {{ callPartner?.username }}</p>
+            <button @click="endCall" class="end-call-button">End Call</button>
           </div>
         </div>
 
@@ -112,6 +136,7 @@
         </div>
       </div>
 
+      <!-- Если чат не выбран -->
       <div v-else class="no-chat">
         <p>Select a chat to start messaging.</p>
       </div>
@@ -122,39 +147,47 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useChatStore } from '@/store';
-import axios from 'axios';
 import { useRouter } from 'vue-router';
+import axios from 'axios';
 import { io } from 'socket.io-client';
 
 const store = useChatStore();
 const router = useRouter();
 
-// Состояния интерфейса
 const activeTab = ref('chats');
 const showUserProfile = ref(false);
 const selectedUserProfile = ref(null);
 
-// Состояния данных
 const chats = ref([]);
 const currentChat = ref(null);
 const messages = ref([]);
 const newMessage = ref('');
 const searchQuery = ref('');
 const searchResults = ref([]);
-const userProfile = ref({ 
-  username: '', 
-  email: '' 
-});
+const userProfile = ref({ username: '', email: '' });
 
 const socket = io('http://127.0.0.1:5000');
 
-// Методы
+// --- Новые состояния для звонков ---
+const incomingCall = ref(false);
+const callFrom = ref(null);
+const callPartner = ref(null);
+const inCall = ref(false);
+const localStream = ref(null);
+const peerConnection = ref(null);
+
+// WebRTC STUN-сервера
+const configuration = {
+  iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+};
+
+// Методы для работы чатов
 const fetchUserProfile = async () => {
   try {
     const response = await axios.get(`http://127.0.0.1:5000/get_user_profile/${store.userId}`);
     userProfile.value = response.data;
   } catch (error) {
-    console.error("Error fetching user profile", error);
+    console.error('Error fetching user profile', error);
   }
 };
 
@@ -163,7 +196,7 @@ const fetchChats = async () => {
     const response = await axios.get(`http://127.0.0.1:5000/get_chats/${store.userId}`);
     chats.value = response.data;
   } catch (error) {
-    console.error("Error fetching chats", error);
+    console.error('Error fetching chats', error);
   }
 };
 
@@ -174,12 +207,10 @@ const searchUsers = async () => {
   }
 
   try {
-    const response = await axios.get(
-      `http://127.0.0.1:5000/search_users?username=${searchQuery.value}`
-    );
+    const response = await axios.get(`http://127.0.0.1:5000/search_users?username=${searchQuery.value}`);
     searchResults.value = response.data;
   } catch (error) {
-    console.error("Error searching users", error);
+    console.error('Error searching users', error);
   }
 };
 
@@ -195,23 +226,7 @@ const createPersonalChat = async (user) => {
       await fetchChats();
     }
   } catch (error) {
-    console.error("Error creating personal chat", error);
-  }
-};
-
-const getChatParticipant = async (chat) => {
-  if (chat.is_group) return null;
-  const participantId = chat.participants?.find(id => id !== store.userId);
-  if (!participantId) return null;
-
-  try {
-    const response = await axios.get(
-      `http://127.0.0.1:5000/get_user_profile/${participantId}`
-    );
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching participant profile", error);
-    return null;
+    console.error('Error creating personal chat', error);
   }
 };
 
@@ -221,11 +236,25 @@ const openChat = async (chat) => {
   fetchMessages(chat.id);
 };
 
+const getChatParticipant = async (chat) => {
+  if (chat.is_group) return null;
+  const participantId = chat.participants?.find(id => id !== store.userId);
+  if (!participantId) return null;
+
+  try {
+    const response = await axios.get(`http://127.0.0.1:5000/get_user_profile/${participantId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching participant profile', error);
+    return null;
+  }
+};
+
 const fetchMessages = async (chatId) => {
   try {
     const response = await axios.get(`http://127.0.0.1:5000/get_messages/${chatId}`);
     const messagesWithUsernames = await Promise.all(
-      response.data.map(async message => ({
+      response.data.map(async (message) => ({
         ...message,
         username: await getUsernameById(message.sender_id)
       }))
@@ -233,19 +262,17 @@ const fetchMessages = async (chatId) => {
     messages.value = messagesWithUsernames;
     socket.emit('join_chat', { chat_id: chatId });
   } catch (error) {
-    console.error("Error fetching messages", error);
+    console.error('Error fetching messages', error);
   }
 };
 
 const getUsernameById = async (userId) => {
   try {
-    const response = await axios.get(
-      `http://127.0.0.1:5000/search_user_by_id/${userId}`
-    );
+    const response = await axios.get(`http://127.0.0.1:5000/search_user_by_id/${userId}`);
     return response.data.username;
   } catch (error) {
-    console.error("Error fetching username", error);
-    return "Unknown";
+    console.error('Error fetching username', error);
+    return 'Unknown';
   }
 };
 
@@ -275,17 +302,96 @@ const logout = () => {
   router.push('/');
 };
 
-// Хуки жизненного цикла
-onMounted(() => {
-  if (!store.isLoggedIn) {
-    router.push('/');
-  } else {
-    fetchUserProfile();
-    fetchChats();
-  }
-});
+// --- Работа со звонками (самая интересная часть) ---
+const startCall = async () => {
+  try {
+    localStream.value = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
 
-// Socket handlers
+    peerConnection.value = new RTCPeerConnection(configuration);
+    localStream.value.getTracks().forEach(track => {
+      peerConnection.value.addTrack(track, localStream.value);
+    });
+
+    peerConnection.value.onicecandidate = (event) => {
+      if (event.candidate) {
+        socket.emit('webrtc_ice_candidate', {
+          candidate: event.candidate,
+          room: currentChat.value.id,
+          sender_id: store.userId
+        });
+      }
+    };
+
+    const offer = await peerConnection.value.createOffer();
+    await peerConnection.value.setLocalDescription(offer);
+
+    socket.emit('webrtc_offer', {
+      offer: offer,
+      room: currentChat.value.id,
+      sender_id: store.userId
+    });
+
+    inCall.value = true;
+    callPartner.value = selectedUserProfile.value;
+  } catch (error) {
+    console.error('Error starting call', error);
+  }
+};
+
+const acceptCall = async () => {
+  try {
+    incomingCall.value = false;
+    inCall.value = true;
+    callPartner.value = callFrom.value;
+
+    localStream.value = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+
+    peerConnection.value = new RTCPeerConnection(configuration);
+
+    localStream.value.getTracks().forEach(track => {
+      peerConnection.value.addTrack(track, localStream.value);
+    });
+
+    peerConnection.value.onicecandidate = (event) => {
+      if (event.candidate) {
+        socket.emit('webrtc_ice_candidate', {
+          candidate: event.candidate,
+          room: currentChat.value.id,
+          sender_id: store.userId
+        });
+      }
+    };
+
+    peerConnection.value.ontrack = (event) => {
+      const remoteAudio = new Audio();
+      remoteAudio.srcObject = event.streams[0];
+      remoteAudio.play();
+    };
+
+    socket.emit('webrtc_answer', {
+      room: currentChat.value.id,
+      sender_id: store.userId
+    });
+  } catch (error) {
+    console.error('Error accepting call', error);
+  }
+};
+
+const declineCall = () => {
+  incomingCall.value = false;
+  callFrom.value = null;
+};
+
+const endCall = () => {
+  if (peerConnection.value) {
+    peerConnection.value.close();
+    peerConnection.value = null;
+  }
+  inCall.value = false;
+  callPartner.value = null;
+};
+
+// --- События от сервера ---
 socket.on('receive_message', async (data) => {
   if (currentChat.value?.id === data.chat_id) {
     messages.value.push({
@@ -293,6 +399,47 @@ socket.on('receive_message', async (data) => {
       content: data.text,
       username: await getUsernameById(data.sender_id)
     });
+  }
+});
+
+socket.on('incoming_call', (data) => {
+  console.log('Incoming call', data);
+  incomingCall.value = true;
+  callFrom.value = data.from_user;
+});
+
+// Если звонок принят
+socket.on('call_accepted', (data) => {
+  console.log('Call accepted', data);
+  inCall.value = true;
+  incomingCall.value = false;
+  callPartner.value = callFrom.value; // чтобы отобразить с кем звонок
+});
+
+// Если звонок отклонён
+socket.on('call_declined', (data) => {
+  console.log('Call declined', data);
+  if (incomingCall.value) {
+    incomingCall.value = false;
+    callFrom.value = null;
+    alert('User declined your call.');
+  }
+});
+
+// Если звонок завершён
+socket.on('call_ended', (data) => {
+  console.log('Call ended', data);
+  if (inCall.value) {
+    endCall(); // завершить звонок на клиенте
+  }
+});
+
+onMounted(() => {
+  if (!store.isLoggedIn) {
+    router.push('/');
+  } else {
+    fetchUserProfile();
+    fetchChats();
   }
 });
 </script>

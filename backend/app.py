@@ -228,3 +228,90 @@ def create_personal_chat():
     }
     print("New chat created, returning:", response_data)
     return jsonify(response_data), 201
+
+# Пользователь инициирует звонок
+@socketio.on('start_call')
+def handle_start_call(data):
+    chat_id = data.get('chat_id')
+    user_id = data.get('user_id')
+
+    if not chat_id or not user_id:
+        emit('error', {'message': 'Missing chat_id or user_id'})
+        return
+
+    chat = Chat.query.get(chat_id)
+    if not chat:
+        emit('error', {'message': 'Chat not found'})
+        return
+
+    # Найти второго участника (получателя звонка)
+    recipient = None
+    for participant in chat.participants:
+        if participant.id != user_id:
+            recipient = participant
+            break
+
+    if not recipient:
+        emit('error', {'message': 'Recipient not found'})
+        return
+
+    join_room(str(chat_id))
+
+    # Отправляем событие incoming_call всем в комнате, кроме вызывающего
+    emit('incoming_call', {
+        'chat_id': chat_id,
+        'from_user': {
+            'id': user_id,
+            'username': User.query.get(user_id).username
+        }
+    }, room=str(chat_id), include_self=False)
+
+
+# Пользователь принимает звонок
+@socketio.on('accept_call')
+def handle_accept_call(data):
+    chat_id = data.get('chat_id')
+    user_id = data.get('user_id')
+
+    if not chat_id or not user_id:
+        emit('error', {'message': 'Missing chat_id or user_id'})
+        return
+
+    join_room(str(chat_id))
+
+    emit('call_accepted', {
+        'chat_id': chat_id,
+        'user_id': user_id
+    }, room=str(chat_id))
+
+
+# Пользователь отклоняет звонок
+@socketio.on('decline_call')
+def handle_decline_call(data):
+    chat_id = data.get('chat_id')
+    user_id = data.get('user_id')
+
+    if not chat_id or not user_id:
+        emit('error', {'message': 'Missing chat_id or user_id'})
+        return
+
+    emit('call_declined', {
+        'chat_id': chat_id,
+        'user_id': user_id
+    }, room=str(chat_id))
+
+
+# Пользователь завершает звонок
+@socketio.on('end_call')
+def handle_end_call(data):
+    chat_id = data.get('chat_id')
+    user_id = data.get('user_id')
+
+    if not chat_id or not user_id:
+        emit('error', {'message': 'Missing chat_id or user_id'})
+        return
+
+    emit('call_ended', {
+        'chat_id': chat_id,
+        'user_id': user_id
+    }, room=str(chat_id))

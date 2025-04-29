@@ -1,21 +1,33 @@
 import unittest
+import os
 from app import app, socketio, db, User, Chat, ChatMessage  # Import your app and models
 
 class ChatAppTests(unittest.TestCase):
     def setUp(self):
+        # Force SQLite for tests regardless of environment configuration
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         app.config['TESTING'] = True
         app.config['MAIL_SUPPRESS_SEND'] = True
-        with app.app_context():
-            db.create_all()
+        app.config['WTF_CSRF_ENABLED'] = False
+        
+        # Create application context
+        self.app_context = app.app_context()
+        self.app_context.push()
+        
+        # Create all tables in the database
+        db.create_all()
 
         self.client = app.test_client()
         self.socket_client = socketio.test_client(app, flask_test_client=self.client)
 
     def tearDown(self):
-        with app.app_context():
-            db.session.remove()
-            db.drop_all()
+        # Drop all tables
+        db.session.remove()
+        db.drop_all()
+        
+        # Pop the context
+        self.app_context.pop()
 
     def test_register(self):
         response = self.client.post('/register', json={

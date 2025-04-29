@@ -8,10 +8,18 @@ from dotenv import load_dotenv
 # Load environment variables from .env
 load_dotenv()
 
+# Check if we're in a testing environment
+is_testing = os.environ.get('FLASK_TESTING') == 'True'
+
 class Config:
     """Configuration class containing database and email settings."""
     
-    SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI")
+    # Use SQLite for testing, otherwise use the configured database
+    if is_testing:
+        SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    else:
+        SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI")
+    
     SQLALCHEMY_TRACK_MODIFICATIONS = os.getenv("SQLALCHEMY_TRACK_MODIFICATIONS", "False") == "True"
 
     MAIL_SERVER = os.getenv("MAIL_SERVER")

@@ -48,7 +48,9 @@ jobs:
         echo "${{ secrets.ENV_FILE }}" > backend/.env
     - name: Set up test environment
       run: |
+        export CI=True
         export FLASK_TESTING=True
+        export SQLALCHEMY_DATABASE_URI='sqlite:///:memory:'
     - name: Run test_app.py
       run: |
-        python -m unittest backend/test_app.py
+        cd backend && python -m unittest test_app.py -v

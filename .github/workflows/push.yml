@@ -45,4 +45,4 @@ jobs:
         pip install -r backend/requirements.txt
     - name: Run test_app.py
       run: |
-        python test_app.py
+        python backend/test_app.py

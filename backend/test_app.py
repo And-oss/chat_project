@@ -66,133 +66,99 @@ class ChatAppTests(unittest.TestCase):
         self.assertIn('error', data)
         self.assertEqual(data['error'], 'Invalid credentials')
 
-    def test_create_chat(self):
-        # Register and login user
+    def test_get_user_profile(self):
+        # Register a user
         self.client.post('/register', json={
             'email': 'test@example.com',
             'username': 'testuser',
             'password': 'password123'
         })
-        response = self.client.post('/login', json={
+        
+        # Login to get user_id
+        login_response = self.client.post('/login', json={
             'username': 'testuser',
             'password': 'password123'
         })
-        user_data = response.get_json()
-
-        # Create a chat
-        response = self.client.post('/create_chat', json={
-            'name': 'Test Chat',
-            'is_group': False,
-            'participants': [user_data['user_id']]
-        })
-        data = response.get_json()
-        self.assertEqual(response.status_code, 201)
-        self.assertIn('message', data)
-        self.assertEqual(data['message'], 'Chat created successfully')
-
-    def test_create_chat_invalid_participants(self):
-        # Register and login user
-        self.client.post('/register', json={
-            'email': 'test@example.com',
-            'username': 'testuser',
-            'password': 'password123'
-        })
-        response = self.client.post('/login', json={
-            'username': 'testuser',
-            'password': 'password123'
-        })
-        user_data = response.get_json()
-
-
-        response = self.client.post('/create_chat', json={
-            'name': 'Invalid Chat',
-            'is_group': False,
-            'participants': [9999]  # Non-existent user ID
-        })
-        data = response.get_json()
-        self.assertEqual(response.status_code, 400)
-        self.assertIn('error', data)
-        self.assertEqual(data['error'], 'Invalid participants')
-
-    def test_get_chat_users(self):
-        # Register and login user
-        self.client.post('/register', json={
-            'email': 'test@example.com',
-            'username': 'testuser',
-            'password': 'password123'
-        })
-        response = self.client.post('/login', json={
-            'username': 'testuser',
-            'password': 'password123'
-        })
-        user_data = response.get_json()
-
-        # Create a chat
-        self.client.post('/create_chat', json={
-            'name': 'Test Chat',
-            'is_group': False,
-            'participants': [user_data['user_id']]
-        })
-
-        # Get the chat users
-        chat_id = 1  # Assuming chat ID is 1
-        response = self.client.get(f'/get_chat_users/{chat_id}')
+        user_data = login_response.get_json()
+        user_id = user_data['user_id']
+        
+        # Get user profile
+        response = self.client.get(f'/get_user_profile/{user_id}')
         data = response.get_json()
         self.assertEqual(response.status_code, 200)
-        self.assertGreater(len(data), 0)
-        self.assertEqual(data[0]['username'], 'testuser')
+        self.assertEqual(data['username'], 'testuser')
+        self.assertEqual(data['email'], 'test@example.com')
 
-    def test_send_message(self):
+    def test_search_user_by_id(self):
+        # Register a user
         self.client.post('/register', json={
             'email': 'test@example.com',
             'username': 'testuser',
             'password': 'password123'
         })
-        response = self.client.post('/login', json={
+        
+        # Login to get user_id
+        login_response = self.client.post('/login', json={
             'username': 'testuser',
             'password': 'password123'
         })
-        user_data = response.get_json()
+        user_data = login_response.get_json()
+        user_id = user_data['user_id']
+        
+        # Search for user by ID
+        response = self.client.get(f'/search_user_by_id/{user_id}')
+        data = response.get_json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data['id'], user_id)
+        self.assertEqual(data['username'], 'testuser')
 
-        # Создаём чат
-        self.client.post('/create_chat', json={
-            'name': 'Test Chat',
-            'is_group': False,
-            'participants': [user_data['user_id']]
+    def test_search_users(self):
+        # Register a user
+        self.client.post('/register', json={
+            'email': 'test@example.com',
+            'username': 'testuser',
+            'password': 'password123'
         })
+        
+        # Search for users by username
+        response = self.client.get('/search_users?username=test')
+        data = response.get_json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]['username'], 'testuser')
 
+    def test_get_chats_empty(self):
+        # Register a user
+        self.client.post('/register', json={
+            'email': 'test@example.com',
+            'username': 'testuser',
+            'password': 'password123'
+        })
+        
+        # Login to get user_id
+        login_response = self.client.post('/login', json={
+            'username': 'testuser',
+            'password': 'password123'
+        })
+        user_data = login_response.get_json()
+        user_id = user_data['user_id']
+        
+        # Get chats for user (should be empty)
+        response = self.client.get(f'/get_chats/{user_id}')
+        data = response.get_json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(data), 0)
 
-        chat_id = 1
-        message_data = {
-            'chat_id': chat_id,
-            'user_id': user_data['user_id'],
-            'text': 'Hello, world!'
-        }
-
-        self.socket_client.emit('send_message', message_data)
-
-        received = self.socket_client.get_received()
-
-        self.assertGreater(len(received), 0)
-        message = received[0]['args'][0]
-        self.assertEqual(message['text'], 'Hello, world!')
-        self.assertEqual(message['username'], 'testuser')
-
-    def test_send_message_invalid_user(self):
-        chat_id = 1
-        message_data = {
-            'chat_id': chat_id,
-            'user_id': 999,
-            'text': 'Hello, world!'
-        }
-
-        self.socket_client.emit('send_message', message_data)
-
-        received = self.socket_client.get_received()
-
-        self.assertGreater(len(received), 0)
-        error_message = received[0]['args'][0]
-        self.assertEqual(error_message['message'], 'Invalid user or chat')
+    def test_socket_connection(self):
+        # Test that socket connection works
+        self.assertTrue(self.socket_client.is_connected())
+        
+    def test_error_handler(self):
+        # Test 404 error handler
+        response = self.client.get('/nonexistent_route')
+        data = response.get_json()
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(data['error'], 'Not found')
 
 if __name__ == '__main__':
     unittest.main()

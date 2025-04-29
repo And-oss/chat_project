@@ -5,7 +5,7 @@ Configuration module for application settings.
 import os
 from dotenv import load_dotenv
 
-# Загружаем переменные из .env
+# Load environment variables from .env
 load_dotenv()
 
 class Config:

@@ -1,3 +1,8 @@
+"""
+Flask application for chat system with real-time messaging capabilities.
+This module contains the application logic, including routes for user registration, 
+login, chat functionality, and handling real-time messaging using SocketIO.
+"""
 import random
 from flask import Flask, request, jsonify
 from flask_mail import Mail, Message
@@ -7,11 +12,6 @@ from flask_cors import CORS
 from data.config import Config
 from data.db import db
 from data.models import User, Chat, Message as ChatMessage
-
-"""
-This module contains the application logic, including routes for user registration, 
-login, chat functionality, and handling real-time messaging using SocketIO.
-"""
 
 app = Flask(__name__)
 CORS(app)
@@ -178,13 +178,10 @@ def handle_send_message(json):
         'timestamp': new_message.timestamp.isoformat()
     }, room=str(chat_id))
 
-# Additional event handlers for join_chat, start_call, accept_call, decline_call, end_call...
-"""
-CHAT CALL HANDLERS
-"""
-
+# Chat call handler section
 @socketio.on('accept_call')
 def handle_accept_call(data):
+    """Handle accepting a call in a chat."""
     chat_id = data.get('chat_id')
     user_id = data.get('user_id')
 
@@ -199,9 +196,9 @@ def handle_accept_call(data):
         'user_id': user_id
     }, room=str(chat_id))
 
-# Пользователь отклоняет звонок
 @socketio.on('decline_call')
 def handle_decline_call(data):
+    """Handle declining a call in a chat."""
     chat_id = data.get('chat_id')
     user_id = data.get('user_id')
 
@@ -216,6 +213,7 @@ def handle_decline_call(data):
 
 @socketio.on('end_call')
 def handle_end_call(data):
+    """Handle ending a call in a chat."""
     chat_id = data.get('chat_id')
     user_id = data.get('user_id')
 

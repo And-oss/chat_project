@@ -1,8 +1,9 @@
-from app import app, db
-
 """
+Database initialization module.
 This module initializes the database by dropping all existing tables and creating new ones.
 """
+
+from app import app, db
 
 def init_db():
     """

@@ -16,6 +16,18 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(2048), nullable=False)
+    
+    def __repr__(self):
+        """Return string representation of User."""
+        return f'<User {self.username}>'
+    
+    def to_dict(self):
+        """Convert user to dictionary representation."""
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email
+        }
 
 class Chat(db.Model):
     """Model representing a chat (private or group)"""
@@ -23,6 +35,18 @@ class Chat(db.Model):
     name = db.Column(db.String(100), nullable=False)
     is_group = db.Column(db.Boolean, default=False)
     participants = db.relationship('User', secondary=chat_participants, backref='chats')
+    
+    def __repr__(self):
+        """Return string representation of Chat."""
+        return f'<Chat {self.name}>'
+    
+    def to_dict(self):
+        """Convert chat to dictionary representation."""
+        return {
+            'id': self.id,
+            'name': self.name,
+            'is_group': self.is_group
+        }
 
 class Message(db.Model):
     """Model representing a message sent in a chat"""
@@ -31,3 +55,17 @@ class Message(db.Model):
     chat_id = db.Column(db.Integer, db.ForeignKey('chat.id'), nullable=False)
     content = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, server_default=db.func.now())
+    
+    def __repr__(self):
+        """Return string representation of Message."""
+        return f'<Message {self.id}>'
+    
+    def to_dict(self):
+        """Convert message to dictionary representation."""
+        return {
+            'id': self.id,
+            'sender_id': self.sender_id,
+            'chat_id': self.chat_id,
+            'content': self.content,
+            'timestamp': self.timestamp.isoformat() if self.timestamp else None
+        }

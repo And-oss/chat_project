@@ -51,4 +51,4 @@ jobs:
         export FLASK_TESTING=True
     - name: Run test_app.py
       run: |
-        python python -m unittest backend/test_app.py
+        python -m unittest backend/test_app.py

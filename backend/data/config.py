@@ -1,12 +1,22 @@
+"""
+Configuration module for application settings.
+"""
+
 import os
+from dotenv import load_dotenv
+
+# Загружаем переменные из .env
+load_dotenv()
 
 class Config:
-    SQLALCHEMY_DATABASE_URI="mysql+pymysql://root:1$EgorMySQL@127.0.0.1/test"
-    SQLALCHEMY_TRACK_MODIFICATIONS=False
+    """Configuration class containing database and email settings."""
+    
+    SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI")
+    SQLALCHEMY_TRACK_MODIFICATIONS = os.getenv("SQLALCHEMY_TRACK_MODIFICATIONS", "False") == "True"
 
-    MAIL_SERVER='smtp.gmail.com'
-    MAIL_PORT=587
-    MAIL_USE_TLS=True
-    MAIL_USERNAME='as2504684@gmail.com'
-    MAIL_PASSWORD='fasf tami jstz jpls'
-    MAIL_DEFAULT_SENDER='as2504684@gmail.com'
+    MAIL_SERVER = os.getenv("MAIL_SERVER")
+    MAIL_PORT = int(os.getenv("MAIL_PORT", "587"))
+    MAIL_USE_TLS = os.getenv("MAIL_USE_TLS", "True") == "True"
+    MAIL_USERNAME = os.getenv("MAIL_USERNAME")
+    MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
+    MAIL_DEFAULT_SENDER = os.getenv("MAIL_DEFAULT_SENDER")

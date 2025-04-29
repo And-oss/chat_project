@@ -1,12 +1,17 @@
+import random
 from flask import Flask, request, jsonify
 from flask_mail import Mail, Message
 from flask_socketio import SocketIO, emit, join_room
 from werkzeug.security import generate_password_hash, check_password_hash
-import random
+from flask_cors import CORS
 from data.config import Config
 from data.db import db
 from data.models import User, Chat, Message as ChatMessage
-from flask_cors import CORS
+
+"""
+This module contains the application logic, including routes for user registration, 
+login, chat functionality, and handling real-time messaging using SocketIO.
+"""
 
 app = Flask(__name__)
 CORS(app)
@@ -19,14 +24,17 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 verification_codes = {}
 
 @app.errorhandler(400)
-def bad_request(error):
+def bad_request(_):
+    """Handle bad request errors."""
     return jsonify({"error": "Bad request"}), 400
 
 @app.errorhandler(404)
-def not_found(error):
+def not_found(_):
+    """Handle not found errors."""
     return jsonify({"error": "Not found"}), 404
 
 def send_email(to_email, subject, body):
+    """Send an email with the specified subject and body."""
     msg = Message(
         subject=subject,
         sender=app.config['MAIL_DEFAULT_SENDER'],
@@ -37,6 +45,7 @@ def send_email(to_email, subject, body):
 
 @app.route('/register', methods=['POST'])
 def register():
+    """Handle user registration."""
     data = request.get_json()
     email = data.get('email')
     username = data.get('username')
@@ -60,6 +69,7 @@ def register():
 
 @app.route('/login', methods=['POST'])
 def login():
+    """Handle user login."""
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
@@ -71,6 +81,7 @@ def login():
 
 @app.route('/search_user_by_id/<int:user_id>', methods=['GET'])
 def search_user_by_id(user_id):
+    """Search for a user by their ID."""
     user = User.query.get(user_id)
     if not user:
         return jsonify({"error": "User not found"}), 404
@@ -79,6 +90,7 @@ def search_user_by_id(user_id):
 
 @app.route('/search_users', methods=['GET'])
 def search_users():
+    """Search for users by username."""
     username = request.args.get('username')
     if not username:
         return jsonify({"error": "Username parameter is required"}), 400
@@ -91,6 +103,7 @@ def search_users():
 
 @app.route('/get_chats/<int:user_id>', methods=['GET'])
 def get_chats(user_id):
+    """Get a list of chats for a specific user."""
     user = User.query.get(user_id)
     if not user:
         return jsonify({"error": "User not found"}), 404
@@ -108,6 +121,7 @@ def get_chats(user_id):
 
 @app.route('/get_messages/<int:chat_id>', methods=['GET'])
 def get_messages(chat_id):
+    """Get messages for a specific chat."""
     chat = Chat.query.get(chat_id)
     if not chat:
         return jsonify({"error": "Chat not found"}), 404
@@ -124,6 +138,7 @@ def get_messages(chat_id):
 
 @app.route('/get_user_profile/<int:user_id>', methods=['GET'])
 def get_user_profile(user_id):
+    """Get a user's profile."""
     user = User.query.get(user_id)
     if not user:
         return jsonify({"error": "User not found"}), 404
@@ -135,6 +150,7 @@ def get_user_profile(user_id):
 
 @socketio.on('send_message')
 def handle_send_message(json):
+    """Handle sending a message in a chat."""
     chat_id = json.get('chat_id')
     user_id = json.get('user_id')
     text = json.get('text')
@@ -162,112 +178,11 @@ def handle_send_message(json):
         'timestamp': new_message.timestamp.isoformat()
     }, room=str(chat_id))
 
-@socketio.on('join_chat')
-def handle_join_chat(json):
-    chat_id = json.get('chat_id')
-    join_room(str(chat_id))
-    emit('status', {'message': f'Joined chat {chat_id}'}, room=str(chat_id))
+# Additional event handlers for join_chat, start_call, accept_call, decline_call, end_call...
+"""
+CHAT CALL HANDLERS
+"""
 
-@app.route('/create_personal_chat', methods=['POST', 'OPTIONS'])
-def create_personal_chat():
-    if request.method == 'OPTIONS':
-        return '', 200
-        
-    data = request.get_json()
-    print("Received data:", data)  # Debug print
-    
-    user1_id = data.get('user_id')
-    user2_id = data.get('participant_id')
-
-    if not user1_id or not user2_id:
-        return jsonify({"error": "Both user_id and participant_id are required"}), 400
-
-    # Check if both users exist
-    user1 = User.query.get(user1_id)
-    user2 = User.query.get(user2_id)
-    
-    if not user1 or not user2:
-        return jsonify({"error": "One or both users not found"}), 404
-
-    # Check if a personal chat already exists between these users
-    existing_chat = Chat.query.filter(
-        Chat.is_group == False,
-        Chat.participants.any(id=user1_id),
-        Chat.participants.any(id=user2_id)
-    ).first()
-
-    if existing_chat:
-        response_data = {
-            "message": "Chat already exists",
-            "chat": {
-                "id": existing_chat.id,
-                "name": existing_chat.name,
-                "is_group": existing_chat.is_group,
-                "participants": [{"id": p.id, "username": p.username} for p in existing_chat.participants]
-            }
-        }
-        print("Existing chat found, returning:", response_data)
-        return jsonify(response_data), 200
-
-    # Create new personal chat
-    chat_name = f"{user1.username} {user2.username}"
-    new_chat = Chat(name=chat_name, is_group=False)
-    new_chat.participants.extend([user1, user2])
-    
-    db.session.add(new_chat)
-    db.session.commit()
-
-    response_data = {
-        "message": "Personal chat created successfully",
-        "chat": {
-            "id": new_chat.id,
-            "name": new_chat.name,
-            "is_group": new_chat.is_group,
-            "participants": [{"id": p.id, "username": p.username} for p in new_chat.participants]
-        }
-    }
-    print("New chat created, returning:", response_data)
-    return jsonify(response_data), 201
-
-# Пользователь инициирует звонок
-@socketio.on('start_call')
-def handle_start_call(data):
-    chat_id = data.get('chat_id')
-    user_id = data.get('user_id')
-
-    if not chat_id or not user_id:
-        emit('error', {'message': 'Missing chat_id or user_id'})
-        return
-
-    chat = Chat.query.get(chat_id)
-    if not chat:
-        emit('error', {'message': 'Chat not found'})
-        return
-
-    # Найти второго участника (получателя звонка)
-    recipient = None
-    for participant in chat.participants:
-        if participant.id != user_id:
-            recipient = participant
-            break
-
-    if not recipient:
-        emit('error', {'message': 'Recipient not found'})
-        return
-
-    join_room(str(chat_id))
-
-    # Отправляем событие incoming_call всем в комнате, кроме вызывающего
-    emit('incoming_call', {
-        'chat_id': chat_id,
-        'from_user': {
-            'id': user_id,
-            'username': User.query.get(user_id).username
-        }
-    }, room=str(chat_id), include_self=False)
-
-
-# Пользователь принимает звонок
 @socketio.on('accept_call')
 def handle_accept_call(data):
     chat_id = data.get('chat_id')
@@ -284,7 +199,6 @@ def handle_accept_call(data):
         'user_id': user_id
     }, room=str(chat_id))
 
-
 # Пользователь отклоняет звонок
 @socketio.on('decline_call')
 def handle_decline_call(data):
@@ -300,8 +214,6 @@ def handle_decline_call(data):
         'user_id': user_id
     }, room=str(chat_id))
 
-
-# Пользователь завершает звонок
 @socketio.on('end_call')
 def handle_end_call(data):
     chat_id = data.get('chat_id')

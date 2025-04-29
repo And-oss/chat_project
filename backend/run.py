@@ -1,5 +1,9 @@
 from app import app, socketio, db
 
+"""
+This module runs the application, initializes the database, and starts the server with SocketIO support.
+"""
+
 with app.app_context():
     db.create_all()
 

@@ -1,32 +1,35 @@
 import unittest
 import os
-from app import app, socketio, db, User, Chat, ChatMessage  # Import your app and models
+import sys
+
+# Add the current directory to sys.path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if current_dir not in sys.path:
+    sys.path.insert(0, current_dir)
+
+from app import app, socketio, db
+from data.models import User, Chat, Message as ChatMessage
 
 class ChatAppTests(unittest.TestCase):
     def setUp(self):
-        # Force SQLite for tests regardless of environment configuration
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         app.config['TESTING'] = True
         app.config['MAIL_SUPPRESS_SEND'] = True
         app.config['WTF_CSRF_ENABLED'] = False
         
-        # Create application context
         self.app_context = app.app_context()
         self.app_context.push()
         
-        # Create all tables in the database
         db.create_all()
 
         self.client = app.test_client()
         self.socket_client = socketio.test_client(app, flask_test_client=self.client)
 
     def tearDown(self):
-        # Drop all tables
         db.session.remove()
         db.drop_all()
         
-        # Pop the context
         self.app_context.pop()
 
     def test_register(self):
@@ -51,14 +54,12 @@ class ChatAppTests(unittest.TestCase):
         self.assertEqual(data['error'], 'Missing required fields')
 
     def test_login(self):
-        # First register a user
         self.client.post('/register', json={
             'email': 'test@example.com',
             'username': 'testuser',
             'password': 'password123'
         })
 
-        # Now try to login
         response = self.client.post('/login', json={
             'username': 'testuser',
             'password': 'password123'
@@ -79,14 +80,14 @@ class ChatAppTests(unittest.TestCase):
         self.assertEqual(data['error'], 'Invalid credentials')
 
     def test_get_user_profile(self):
-        # Register a user
+
         self.client.post('/register', json={
             'email': 'test@example.com',
             'username': 'testuser',
             'password': 'password123'
         })
         
-        # Login to get user_id
+
         login_response = self.client.post('/login', json={
             'username': 'testuser',
             'password': 'password123'
@@ -94,7 +95,7 @@ class ChatAppTests(unittest.TestCase):
         user_data = login_response.get_json()
         user_id = user_data['user_id']
         
-        # Get user profile
+
         response = self.client.get(f'/get_user_profile/{user_id}')
         data = response.get_json()
         self.assertEqual(response.status_code, 200)

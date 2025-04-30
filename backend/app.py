@@ -148,6 +148,65 @@ def get_user_profile(user_id):
         "email": user.email
     }), 200
 
+
+@app.route('/create_personal_chat', methods=['POST', 'OPTIONS'])
+def create_personal_chat():
+    if request.method == 'OPTIONS':
+        return '', 200
+        
+    data = request.get_json()
+    
+    user1_id = data.get('user_id')
+    user2_id = data.get('participant_id')
+
+    if not user1_id or not user2_id:
+        return jsonify({"error": "Both user_id and participant_id are required"}), 400
+
+    # Check if both users exist
+    user1 = User.query.get(user1_id)
+    user2 = User.query.get(user2_id)
+    
+    if not user1 or not user2:
+        return jsonify({"error": "One or both users not found"}), 404
+
+    # Check if a personal chat already exists between these users
+    existing_chat = Chat.query.filter(
+        Chat.is_group == False,
+        Chat.participants.any(id=user1_id),
+        Chat.participants.any(id=user2_id)
+    ).first()
+
+    if existing_chat:
+        response_data = {
+            "message": "Chat already exists",
+            "chat": {
+                "id": existing_chat.id,
+                "name": existing_chat.name,
+                "is_group": existing_chat.is_group,
+                "participants": [{"id": p.id, "username": p.username} for p in existing_chat.participants]
+            }
+        }
+        print("Existing chat found, returning:", response_data)
+        return jsonify(response_data), 200
+
+    chat_name = f"{user1.username} {user2.username}"
+    new_chat = Chat(name=chat_name, is_group=False)
+    new_chat.participants.extend([user1, user2])
+    
+    db.session.add(new_chat)
+    db.session.commit()
+
+    response_data = {
+        "message": "Personal chat created successfully",
+        "chat": {
+            "id": new_chat.id,
+            "name": new_chat.name,
+            "is_group": new_chat.is_group,
+            "participants": [{"id": p.id, "username": p.username} for p in new_chat.participants]
+        }
+    }
+    return jsonify(response_data), 201
+
 @socketio.on('send_message')
 def handle_send_message(json):
     """Handle sending a message in a chat."""

@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>test_app module &#8212; Chat_Project  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-test_app">
+<span id="test-app-module"></span><h1>test_app module<a class="headerlink" href="#module-test_app" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="test_app.Chat">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">test_app.</span></span><span class="sig-name descname"><span class="pre">Chat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#Chat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.Chat" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></p>
+<p>Model representing a chat (private or group)</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="test_app.Chat.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#test_app.Chat.id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="test_app.Chat.is_group">
+<span class="sig-name descname"><span class="pre">is_group</span></span><a class="headerlink" href="#test_app.Chat.is_group" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="test_app.Chat.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#test_app.Chat.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="test_app.Chat.participants">
+<span class="sig-name descname"><span class="pre">participants</span></span><a class="headerlink" href="#test_app.Chat.participants" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="test_app.ChatAppTests">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">test_app.</span></span><span class="sig-name descname"><span class="pre">ChatAppTests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#ChatAppTests"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.ChatAppTests" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="test_app.ChatAppTests.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#ChatAppTests.setUp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.ChatAppTests.setUp" title="Link to this definition">¶</a></dt>
+<dd><p>Set up test environment before each test</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="test_app.ChatAppTests.tearDown">
+<span class="sig-name descname"><span class="pre">tearDown</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#ChatAppTests.tearDown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.ChatAppTests.tearDown" title="Link to this definition">¶</a></dt>
+<dd><p>Clean up after each test</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="test_app.ChatAppTests.test_error_handler_not_found">
+<span class="sig-name descname"><span class="pre">test_error_handler_not_found</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#ChatAppTests.test_error_handler_not_found"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.ChatAppTests.test_error_handler_not_found" title="Link to this definition">¶</a></dt>
+<dd><p>Test 404 error handler</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="test_app.ChatAppTests.test_get_chats">
+<span class="sig-name descname"><span class="pre">test_get_chats</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#ChatAppTests.test_get_chats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.ChatAppTests.test_get_chats" title="Link to this definition">¶</a></dt>
+<dd><p>Test retrieving a user’s chats</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="test_app.ChatAppTests.test_get_chats_user_not_found">
+<span class="sig-name descname"><span class="pre">test_get_chats_user_not_found</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#ChatAppTests.test_get_chats_user_not_found"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.ChatAppTests.test_get_chats_user_not_found" title="Link to this definition">¶</a></dt>
+<dd><p>Test retrieving chats for a non-existent user</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="test_app.ChatAppTests.test_get_messages">
+<span class="sig-name descname"><span class="pre">test_get_messages</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#ChatAppTests.test_get_messages"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.ChatAppTests.test_get_messages" title="Link to this definition">¶</a></dt>
+<dd><p>Test retrieving messages for a chat</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="test_app.ChatAppTests.test_get_messages_chat_not_found">
+<span class="sig-name descname"><span class="pre">test_get_messages_chat_not_found</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#ChatAppTests.test_get_messages_chat_not_found"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.ChatAppTests.test_get_messages_chat_not_found" title="Link to this definition">¶</a></dt>
+<dd><p>Test retrieving messages for a non-existent chat</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="test_app.ChatAppTests.test_get_user_profile">
+<span class="sig-name descname"><span class="pre">test_get_user_profile</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#ChatAppTests.test_get_user_profile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.ChatAppTests.test_get_user_profile" title="Link to this definition">¶</a></dt>
+<dd><p>Test retrieving a user’s profile</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="test_app.ChatAppTests.test_get_user_profile_not_found">
+<span class="sig-name descname"><span class="pre">test_get_user_profile_not_found</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#ChatAppTests.test_get_user_profile_not_found"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.ChatAppTests.test_get_user_profile_not_found" title="Link to this definition">¶</a></dt>
+<dd><p>Test retrieving a profile for a non-existent user</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="test_app.ChatAppTests.test_login">
+<span class="sig-name descname"><span class="pre">test_login</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#ChatAppTests.test_login"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.ChatAppTests.test_login" title="Link to this definition">¶</a></dt>
+<dd><p>Test user login with valid credentials</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="test_app.ChatAppTests.test_login_invalid_credentials">
+<span class="sig-name descname"><span class="pre">test_login_invalid_credentials</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#ChatAppTests.test_login_invalid_credentials"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.ChatAppTests.test_login_invalid_credentials" title="Link to this definition">¶</a></dt>
+<dd><p>Test login with invalid credentials</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="test_app.ChatAppTests.test_register">
+<span class="sig-name descname"><span class="pre">test_register</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#ChatAppTests.test_register"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.ChatAppTests.test_register" title="Link to this definition">¶</a></dt>
+<dd><p>Test user registration functionality</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="test_app.ChatAppTests.test_register_duplicate_email">
+<span class="sig-name descname"><span class="pre">test_register_duplicate_email</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#ChatAppTests.test_register_duplicate_email"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.ChatAppTests.test_register_duplicate_email" title="Link to this definition">¶</a></dt>
+<dd><p>Test registration with an already registered email</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="test_app.ChatAppTests.test_register_missing_fields">
+<span class="sig-name descname"><span class="pre">test_register_missing_fields</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#ChatAppTests.test_register_missing_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.ChatAppTests.test_register_missing_fields" title="Link to this definition">¶</a></dt>
+<dd><p>Test registration with missing fields</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="test_app.ChatAppTests.test_search_user_by_id">
+<span class="sig-name descname"><span class="pre">test_search_user_by_id</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#ChatAppTests.test_search_user_by_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.ChatAppTests.test_search_user_by_id" title="Link to this definition">¶</a></dt>
+<dd><p>Test searching for a user by ID</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="test_app.ChatAppTests.test_search_user_by_id_not_found">
+<span class="sig-name descname"><span class="pre">test_search_user_by_id_not_found</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#ChatAppTests.test_search_user_by_id_not_found"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.ChatAppTests.test_search_user_by_id_not_found" title="Link to this definition">¶</a></dt>
+<dd><p>Test searching for a non-existent user ID</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="test_app.ChatAppTests.test_search_users">
+<span class="sig-name descname"><span class="pre">test_search_users</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#ChatAppTests.test_search_users"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.ChatAppTests.test_search_users" title="Link to this definition">¶</a></dt>
+<dd><p>Test searching for users by username substring</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="test_app.ChatAppTests.test_search_users_missing_parameter">
+<span class="sig-name descname"><span class="pre">test_search_users_missing_parameter</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#ChatAppTests.test_search_users_missing_parameter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.ChatAppTests.test_search_users_missing_parameter" title="Link to this definition">¶</a></dt>
+<dd><p>Test searching for users without providing the username parameter</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="test_app.ChatAppTests.test_search_users_no_matches">
+<span class="sig-name descname"><span class="pre">test_search_users_no_matches</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#ChatAppTests.test_search_users_no_matches"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.ChatAppTests.test_search_users_no_matches" title="Link to this definition">¶</a></dt>
+<dd><p>Test searching for users with no matches</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="test_app.ChatAppTests.test_socketio_structure">
+<span class="sig-name descname"><span class="pre">test_socketio_structure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#ChatAppTests.test_socketio_structure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.ChatAppTests.test_socketio_structure" title="Link to this definition">¶</a></dt>
+<dd><p>Test that the SocketIO structure is correctly defined.
+This is a simple verification that the app has SocketIO events defined.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="test_app.Message">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">test_app.</span></span><span class="sig-name descname"><span class="pre">Message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#Message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.Message" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></p>
+<p>Model representing a message sent in a chat</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="test_app.Message.chat_id">
+<span class="sig-name descname"><span class="pre">chat_id</span></span><a class="headerlink" href="#test_app.Message.chat_id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="test_app.Message.content">
+<span class="sig-name descname"><span class="pre">content</span></span><a class="headerlink" href="#test_app.Message.content" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="test_app.Message.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#test_app.Message.id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="test_app.Message.sender_id">
+<span class="sig-name descname"><span class="pre">sender_id</span></span><a class="headerlink" href="#test_app.Message.sender_id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="test_app.Message.timestamp">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><a class="headerlink" href="#test_app.Message.timestamp" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="test_app.User">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">test_app.</span></span><span class="sig-name descname"><span class="pre">User</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#User"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.User" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></p>
+<p>Model representing a user</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="test_app.User.email">
+<span class="sig-name descname"><span class="pre">email</span></span><a class="headerlink" href="#test_app.User.email" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="test_app.User.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#test_app.User.id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="test_app.User.password">
+<span class="sig-name descname"><span class="pre">password</span></span><a class="headerlink" href="#test_app.User.password" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="test_app.User.username">
+<span class="sig-name descname"><span class="pre">username</span></span><a class="headerlink" href="#test_app.User.username" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_app.get_chats">
+<span class="sig-prename descclassname"><span class="pre">test_app.</span></span><span class="sig-name descname"><span class="pre">get_chats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#get_chats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.get_chats" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_app.get_messages">
+<span class="sig-prename descclassname"><span class="pre">test_app.</span></span><span class="sig-name descname"><span class="pre">get_messages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chat_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#get_messages"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.get_messages" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_app.get_user_profile">
+<span class="sig-prename descclassname"><span class="pre">test_app.</span></span><span class="sig-name descname"><span class="pre">get_user_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#get_user_profile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.get_user_profile" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_app.handle_accept_call">
+<span class="sig-prename descclassname"><span class="pre">test_app.</span></span><span class="sig-name descname"><span class="pre">handle_accept_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#handle_accept_call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.handle_accept_call" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_app.handle_decline_call">
+<span class="sig-prename descclassname"><span class="pre">test_app.</span></span><span class="sig-name descname"><span class="pre">handle_decline_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#handle_decline_call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.handle_decline_call" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_app.handle_end_call">
+<span class="sig-prename descclassname"><span class="pre">test_app.</span></span><span class="sig-name descname"><span class="pre">handle_end_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#handle_end_call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.handle_end_call" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_app.handle_send_message">
+<span class="sig-prename descclassname"><span class="pre">test_app.</span></span><span class="sig-name descname"><span class="pre">handle_send_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">json_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#handle_send_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.handle_send_message" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_app.login">
+<span class="sig-prename descclassname"><span class="pre">test_app.</span></span><span class="sig-name descname"><span class="pre">login</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#login"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.login" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_app.not_found">
+<span class="sig-prename descclassname"><span class="pre">test_app.</span></span><span class="sig-name descname"><span class="pre">not_found</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#not_found"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.not_found" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_app.register">
+<span class="sig-prename descclassname"><span class="pre">test_app.</span></span><span class="sig-name descname"><span class="pre">register</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#register"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.register" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_app.search_user_by_id">
+<span class="sig-prename descclassname"><span class="pre">test_app.</span></span><span class="sig-name descname"><span class="pre">search_user_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#search_user_by_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.search_user_by_id" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="test_app.search_users">
+<span class="sig-prename descclassname"><span class="pre">test_app.</span></span><span class="sig-name descname"><span class="pre">search_users</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test_app.html#search_users"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#test_app.search_users" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Chat_Project</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Egor and Andrey.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../_sources/source/test_app.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

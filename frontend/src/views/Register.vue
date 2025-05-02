@@ -1,38 +1,100 @@
 <template>
-  <div class="register-page">
-    <h2>Регистрация</h2>
-    <form @submit.prevent="register">
-      <div>
-        <label for="username">Имя пользователя</label>
-        <input type="text" v-model="username" required />
+  <div class="auth-page">
+    <div class="auth-container">
+      <div class="auth-header">
+        <h2>Create New Account</h2>
+        <p>Join our community to start chatting</p>
       </div>
-      <div>
-        <label for="email">Email</label>
-        <input type="email" v-model="email" required />
-      </div>
-      <div>
-        <label for="password">Пароль</label>
-        <input type="password" v-model="password" required />
-      </div>
-      <div>
-        <label for="confirmPassword">Подтвердите пароль</label>
-        <input type="password" v-model="confirmPassword" required />
-      </div>
-      <button type="submit">Зарегистрироваться</button>
-    </form>
 
-    <div v-if="isCodeSent">
-      <h3>Подтвердите свою почту</h3>
-      <form @submit.prevent="verifyEmail">
-        <div>
-          <label for="verificationCode">Введите код из письма</label>
-          <input type="text" v-model="verificationCode" required />
+      <form class="auth-form" @submit.prevent="register" v-if="!isCodeSent">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input
+              type="text"
+              id="username"
+              v-model="username"
+              class="form-input"
+              placeholder="Enter your username"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              v-model="email"
+              class="form-input"
+              placeholder="Enter your email"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              v-model="password"
+              class="form-input"
+              placeholder="Create password"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <input
+              type="password"
+              id="confirmPassword"
+              v-model="confirmPassword"
+              class="form-input"
+              placeholder="Repeat password"
+              required
+            />
+          </div>
         </div>
-        <button type="submit">Подтвердить</button>
-      </form>
-    </div>
 
-    <div v-if="errorMessage" class="error">{{ errorMessage }}</div>
+        <button type="submit" class="submit-button">
+          Create Account
+          <span class="icon">→</span>
+        </button>
+
+        <p v-if="errorMessage" class="error-message">
+          ⚠️ {{ errorMessage }}
+        </p>
+      </form>
+
+      <div class="verification-section" v-if="isCodeSent">
+        <div class="divider">Email Verification</div>
+        
+        <form class="auth-form" @submit.prevent="verifyEmail">
+          <div class="form-group">
+            <label for="verificationCode">Verification Code</label>
+            <input
+              type="text"
+              id="verificationCode"
+              v-model="verificationCode"
+              class="form-input"
+              placeholder="Enter code from email"
+              required
+            />
+          </div>
+
+          <button type="submit" class="submit-button">
+            Verify Email
+            <span class="icon">✓</span>
+          </button>
+        </form>
+      </div>
+
+      <div class="auth-footer">
+        <span>Already have an account? </span>
+        <router-link to="/" class="link">Sign In</router-link>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -52,7 +114,7 @@ const router = useRouter();
 
 const register = async () => {
   if (password.value !== confirmPassword.value) {
-    errorMessage.value = "Пароли не совпадают";
+    errorMessage.value = "Passwords do not match";
     return;
   }
 
@@ -66,7 +128,7 @@ const register = async () => {
     isCodeSent.value = true;
     errorMessage.value = null;
   } catch (error) {
-    errorMessage.value = error.response?.data?.error || "Ошибка регистрации";
+    errorMessage.value = error.response?.data?.error || "Registration failed";
   }
 };
 
@@ -76,61 +138,153 @@ const verifyEmail = async () => {
       email: email.value,
       verification_code: verificationCode.value,
     });
-    router.push("/");
+    router.push("/login");
   } catch (error) {
-    errorMessage.value = error.response?.data?.error || "Ошибка подтверждения почты";
+    errorMessage.value = error.response?.data?.error || "Verification failed";
   }
 };
 </script>
 
 <style scoped>
-.register-page {
+.auth-page {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
-  background-color: #36393f;
-  color: white;
+  min-height: 100vh;
+  background-color: #1a1a1a;
+  background-image: linear-gradient(
+    to bottom right,
+    #2d2d2d 0%,
+    #1e1e1e 100%
+  );
 }
 
-form {
+.auth-container {
+  width: 560px;
+  padding: 48px;
+  background-color: #2d2d2d;
+  border-radius: 16px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+  border: 1px solid #444;
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.auth-header h2 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+
+.auth-header p {
+  color: #8e8e93;
+  font-size: 16px;
+  margin: 0;
+}
+
+.form-row {
+  display: grid;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.form-group {
   display: flex;
   flex-direction: column;
-  width: 300px;
+  gap: 8px;
 }
 
-form div {
-  margin-bottom: 10px;
+.form-group label {
+  font-size: 14px;
+  color: #8e8e93;
+  font-weight: 500;
 }
 
-label {
-  margin-bottom: 5px;
+.form-input {
+  padding: 14px 16px;
+  border: 1px solid #444;
+  border-radius: 10px;
+  background-color: #3d3d3d;
+  color: #ffffff;
+  font-size: 15px;
+  transition: all 0.2s ease;
 }
 
-input {
-  padding: 8px;
-  border: 1px solid #484c52;
-  border-radius: 4px;
-  background-color: #484c52;
-  color: white;
+.form-input:focus {
+  border-color: #007aff;
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+  outline: none;
 }
 
-button {
-  padding: 10px;
-  background-color: #7289da;
+.submit-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #007aff;
   color: white;
   border: none;
-  border-radius: 4px;
+  padding: 14px 28px;
+  border-radius: 10px;
   cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  width: 100%;
+  justify-content: center;
+  margin-top: 20px;
 }
 
-button:hover {
-  background-color: #677bc4;
+.submit-button:hover {
+  background-color: #0063cc;
+  transform: translateY(-1px);
 }
 
-.error {
-  color: #ff6b6b;
-  margin-top: 10px;
+.verification-section {
+  margin-top: 40px;
+  padding-top: 40px;
+  border-top: 1px solid #444;
+}
+
+.divider {
+  color: #8e8e93;
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.error-message {
+  color: #ff453a;
+  font-size: 14px;
+  margin: 20px 0;
+  padding: 12px;
+  background-color: rgba(255, 69, 58, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 69, 58, 0.2);
+  text-align: center;
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: 40px;
+  padding-top: 40px;
+  border-top: 1px solid #444;
+  color: #8e8e93;
+  font-size: 14px;
+}
+
+.link {
+  color: #007aff;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.link:hover {
+  color: #0063cc;
+  text-decoration: underline;
 }
 </style>

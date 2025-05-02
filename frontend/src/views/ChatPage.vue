@@ -30,8 +30,7 @@
             <p><strong>Username:</strong> {{ userProfile.username }}</p>
             <p><strong>Email:</strong> {{ userProfile.email }}</p>
           </div>
-        </div>
-
+        </div>  
         <!-- Чаты -->
         <div v-else class="chats-tab">
           <div class="search-users-container">

@@ -265,3 +265,8 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,windows,linux,pydev,python,dotenv,venv
+
+# Sphinx
+docs/build/
+docs/source/modules.rst
+docs/source/backend.rst

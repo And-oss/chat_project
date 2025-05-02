@@ -54,7 +54,7 @@ jobs:
     - name: Run test_app.py
       run: |
         cd backend && python -m unittest test_app.py -v
-    docs:
+  docs:
     name: Generate Documentation
     runs-on: ubuntu-latest
     needs: test
